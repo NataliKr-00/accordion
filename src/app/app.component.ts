@@ -13,17 +13,25 @@ export class AppComponent {
   form = this.formBuilder.group({
     name: ['', [Validators.required]],
     age: ['', [Validators.required]],
-    surname: [''],
-    date: [''],
+    surname: ['', [Validators.required]],
+    date: ['', [Validators.required]],
   });
 
   @ViewChildren(MatExpansionPanel) panels: QueryList<MatExpansionPanel>;
   checkForm(): void {
-    this.panels.forEach((x, index) => {
-      if (index === 0 && this.form.get('name').invalid) {
+    let count = 0;
+    this.panels.forEach((x) => {
+      const fields = Array.from(x._body.nativeElement.children[0].children);
+      const invalidField = fields.filter((field) =>
+        field.classList.contains('ng-invalid')
+      )[0];
+      if (invalidField) {
+        count += 1;
+        this.form.markAllAsTouched();
         x.open();
-        const formInvalid = document.getElementsByClassName('ng-invalid')[1];
-        formInvalid.scrollIntoView({ behavior: 'smooth' });
+        if (count === 1) {
+          invalidField.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        }
       }
     });
   }
